@@ -276,7 +276,7 @@ if __name__ == "__main__":
     while (len(url_dict) > 0):
         # Process the URLs in chunks
 
-        logger.info(f"Processing chunk remaining urls amount {len(url_dict)} ")
+        logger.info(f"Processing urls - full list size {len(url_dict)} ")
         url_dict = convert_urls_to_md(url_dict)
 
         # --- snapshot the remaining urls   ---
