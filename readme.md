@@ -1,6 +1,6 @@
-# Crawl Web Sources convert to Markdown 
+# Review web sources and snapshot as Markdown 
 
-Crawler to scan webistes as listed in sources.txt and snapshot as Markdown files, suitable for use in Notebook LM
+Crawler to scan websites as listed in sources.txt and snapshot as Markdown files, suitable for use in Notebook LM
 
 When uploaded into an AI tool such as [Notebook LM from Google](https://notebooklm.google/), it allows you to run queries on this dataset, "talk" to the data, generate mindmaps and podcasts etc. 
 
