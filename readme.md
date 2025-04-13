@@ -4,7 +4,7 @@ Crawler to scan websites as listed in sources.txt and snapshot as Markdown files
 
 When uploaded into an AI tool such as [Notebook LM from Google](https://notebooklm.google/), it allows you to run queries on this dataset, "talk" to the data, generate mindmaps and podcasts etc. 
 
-Why is this needed? If the URLs were added directly to Notebook LM, Google would not index the website contents.
+Why is this needed? If the URLs are added directly to Notebook LM, Google does not index the website contents.
 
 ![screenshot of notebook lm with using snapshot of data from selected websites](images/notebook-lm.png)
 
@@ -15,7 +15,7 @@ Assuming you have Python installed.
    virtualenv venv
    pip install -r requirements.txt
    ```
-when returning to this project
+When returning to this project
    ```bash
    source venv/bin/activate
    ```
@@ -33,9 +33,9 @@ The following folders will be created / cleared as needed:
 
 ## Usage
 
-1. Prepare a text file containing the list of URLs to process (e.g., `sources.txt`), with one URL per line. Each URL should start with http
+1. Prepare a text file containing the list of URLs to process (e.g. `sources.txt`), with one URL per line. Each URL should start with http or https.
    ``` text
-   http://www.mysample.url.com
+   http://www.mysampleurl.com
    https://www.anotherurl.ie
    ```
 
@@ -53,21 +53,21 @@ The following folders will be created / cleared as needed:
    - Convert the content to Parquet format.
    - Generate the Markdown files with this content in the `downloads_md` directory.
 
-4. Note about uploading to Notebook LM
+4. Note about uploading to NotebookLM
    The md files generated can be directly imported into Notebook LM.
    It is good practice to include the url_snapshot.json (rename to .txt) so you know what information Google Gemini is using.
-   MD files can be manipulated before upload as required (e.g. edited, combined)
+   MD files can be manipulated before upload as required (e.g. edited, combined).
 
-## Robust restart functionality and Troubleshooting
+## Robust restart functionality and troubleshooting
 
-The script only reads information, so nothing can "break". Any information in the download folders can be safely deleted (as it will be recreated during a future script run)
+The script only reads information, so nothing can "break". Any information in the download folders can be safely deleted (as the info will be recreated during a future script run).
 
 1. The Crawler takes websites in blocks of X at a time (can be configured at top of `download.py`).
-1. It saves a snapshot of completed websites / websites still to do in a file call `url_snapshot.json`.
-1. This means if the crawl is interrupted it can be run again without missing anything / without duplication. 
+1. It saves a snapshot of completed websites / websites remaining in `url_snapshot.json`.
+1. This means if the crawl is interrupted it can be run again without missing anything but also without duplication. 
 1. Deleting `url_snapshot.json` resets this, the next run will start again using the urls in `sources.txt`
 
-Since the crawler respects robots.txt, if may pause for several seconds between downloads.
+Since the crawler respects robots.txt, it may pause for several seconds between downloads.
 
 In general it is safe to terminate the script, manipulate the `url_snapshot.json` file and try again.
 
