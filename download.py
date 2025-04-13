@@ -18,6 +18,7 @@ SINGLE_RUN_NO_LOOP = True
 DOWNLOAD_HTML = "downloads_html"
 DOWNLOAD_PARQUET = "downloads_parquet"
 DOWNLOAD_MD = "downloads_md"
+
 # Notebook lm only allows 50 total input sources, this allows to combine inputs into one file
 COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 10
 DEPTH = 2
