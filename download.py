@@ -1,39 +1,40 @@
-import nest_asyncio
-from dpk_web2parquet.transform import Web2Parquet
-from dpk_html2parquet.transform_python import Html2Parquet
-import sys
+# Standard library imports
 import os
-import shutil
+import sys
 import json
-
-import pandas as pd
+import shutil
 import logging
 import time
 
+# Third-party imports
+import nest_asyncio
+import pandas as pd
+from dpk_web2parquet.transform import Web2Parquet
+from dpk_html2parquet.transform_python import Html2Parquet
 
-# CONFIG
-# Set to True if you want to loop over the URLs, otherwise runs once and exits
-SINGLE_RUN_NO_LOOP = True
 
-# Set the download folders
+# CONFIGURATION
+SINGLE_RUN_NO_LOOP = True  # Run once and exit, or loop over URLs
+DEPTH = 2  # Depth of web crawling
+NUM_DOWNLOADS = 1000  # Maximum number of downloads per run
+
+# Folder paths for storing intermediate and final outputs
 DOWNLOAD_HTML = "downloads_html"
 DOWNLOAD_PARQUET = "downloads_parquet"
 DOWNLOAD_MD = "downloads_md"
 
-# Notebook lm only allows 50 total input sources, this allows to combine inputs into one file
-COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 10
-DEPTH = 2
-NUM_DOWNLOADS = 1000
-
-# skip columns in the parquet file - these are not needed in the md file
-PQ_COLS_SKIP = ["document_id", "size"]
-
-# other file names
+# Markdown output settings
+COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 10  # Combine multiple websites into one Markdown file
 MD_OUTPUT_FILE_BASE = "source_"
-URL_SNAPHOT_JSON = "url_snapshot.json"
+
+# Parquet processing settings
+PQ_COLS_SKIP = ["document_id", "size"]  # Columns to skip when converting to Markdown
+
+# Snapshot file for tracking progress
+URL_SNAPSHOT_JSON = "url_snapshot.json"
 
 
-def get_dict_source_files(source_file_as_txt):
+def get_dict_source_files(source_file_as_txt: str) -> dict:
     """
     Reads URLs from a text file, iterates through each URL,
     and logs them to the console. Handles file not found errors.
@@ -76,7 +77,7 @@ def get_dict_source_files(source_file_as_txt):
 
 
 
-def convert_urls_to_md(url_dict):
+def convert_urls_to_md(url_dict: dict) -> dict:
     """
     Converts a dict of URLs to markdown files.  
 
@@ -253,8 +254,8 @@ if __name__ == "__main__":
     pd.set_option("display.max_colwidth", 10000)
 
     # load url - Snapshot file if it exists, sources.txt if not
-    if os.path.exists(URL_SNAPHOT_JSON):
-        with open(URL_SNAPHOT_JSON, 'r') as f:
+    if os.path.exists(URL_SNAPSHOT_JSON):
+        with open(URL_SNAPSHOT_JSON, 'r') as f:
             url_dict = json.load(f)  # Load the entire JSON content
             if not isinstance(url_dict, dict):  # check if the data is a list
 
@@ -279,9 +280,9 @@ if __name__ == "__main__":
         url_dict = convert_urls_to_md(url_dict)
 
         # --- snapshot the remaining urls   ---
-        with open(URL_SNAPHOT_JSON, 'w') as filehandle:
+        with open(URL_SNAPSHOT_JSON, 'w') as filehandle:
             json.dump(url_dict, filehandle)
-            logger.info(f"remaining written to {URL_SNAPHOT_JSON}")
+            logger.info(f"remaining written to {URL_SNAPSHOT_JSON}")
         
 
         # break if set in config to do single run
@@ -289,4 +290,4 @@ if __name__ == "__main__":
             logger.info(f"Info: Config set not to loop . Exiting.")
             break
 
-    
+
