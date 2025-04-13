@@ -4,6 +4,10 @@ Crawler to download list from sources.txt and output as md , suitable for use in
 
 This sub-folder contains a tool for crawling web sources, converting their content into Parquet files, and generating Markdown files for further analysis. It is designed to process a list of URLs, download their content, and transform the data into a structured Markdown format.
 
+When uploaded into an AI tool such as [Notebook LM from Google](https://notebooklm.google/), it allows you to run queries on this dataset, "talk" to the data, generate mindmaps and podcasts etc. Note the URLs were added directly to Notebook LM, it Google would not index the website contents.
+
+![screenshot of notebook lm with using snapt of data from selected websites](images/notebook-lm.png)
+
 ## Configuration
 
 - *download.py*: Allows configuration of download depth, number of downloads, and Markdown file structure.

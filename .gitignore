@@ -67,31 +67,13 @@ coverage.xml
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
 
-# Flask stuff:
-instance/
-.webassets-cache
 
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
 
 # PyBuilder
 target/
 
-# Jupyter Notebook
-.ipynb_checkpoints
 
-# IPython
-profile_default/
-ipython_config.py
 
 # pyenv
 .python-version
@@ -102,16 +84,6 @@ ipython_config.py
 #   having no cross-platform support, pipenv may install dependencies that don't work, or not
 #   install all needed dependencies.
 #Pipfile.lock
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
 
 # Environments
 .env
@@ -132,22 +104,13 @@ venv.bak/
 # mkdocs documentation
 /site
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
 
-# Pyre type checker
-.pyre/
-output.xls
-kim.txt
-lab_external_web_source/dump.html
+
 
 # downloads
-tool_crawl_web_source_to_md/downloads_md/
-tool_crawl_web_source_to_md/downloads_parquet/
-sources-remaining.json
-sources.txt
-tool_crawl_web_source_to_md/sources.txt
+downloads_md/
+downloads_parquet/
+downloads_html
 
-tool_crawl_web_source_to_md/url_snapshot.json
+sources.txt
+url_snapshot.json
