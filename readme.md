@@ -18,9 +18,13 @@ This sub-folder contains a tool for crawling web sources, converting their conte
 
    ```bash
    virtualenv venv
-   source venv/bin/activate
    pip install -r requirements.txt
    ```
+when returning to this
+   ```bash
+   source venv/bin/activate
+   ```
+
 
 3. Ensure the following directories exist or will be created during runtime:
    - `downloads_html`
@@ -33,7 +37,7 @@ This sub-folder contains a tool for crawling web sources, converting their conte
 
 2. Run the script:
    ```bash
-   python tool_crawl_web_source_to_md/download.py 
+   python3 download.py 
    ```
    - The script will look for a url_snapshot.json (a record)
    - The script defaults to `sources.txt` and creates url_snapshot.json as needed to record progress
@@ -47,4 +51,6 @@ This sub-folder contains a tool for crawling web sources, converting their conte
    - Download the content of the URLs.
    - Convert the content to Parquet format.
    - Generate Markdown files in the `downloads_md` directory.
+
+4. ### Note about uploading to Notebook LM
 
