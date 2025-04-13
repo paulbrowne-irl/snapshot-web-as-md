@@ -1,10 +1,15 @@
 # Todo on this sample
 
 # NOW
-* kick off downloads
+
 * upgrade Readme
-    * ask for suggestions from AI
-    * image from notebooklm -https://notebooklm.google/
+    * tidy manual
     * instructions on how to use with notebooklm (inc snapshot of sources)
 
-9
+ ask for suggestions from AI 
+    * on readme
+    * on download.py
+
+# LATER
+
+* Ask copilot to generate script to combine md files up to maximum file size

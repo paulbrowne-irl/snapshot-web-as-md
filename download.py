@@ -8,13 +8,14 @@ import json
 
 import pandas as pd
 import logging
-import pprint
 import time
 
 
 # CONFIG
 # Set to True if you want to loop over the URLs, otherwise runs once and exits
 SINGLE_RUN_NO_LOOP = True
+
+# Set the download folders
 DOWNLOAD_HTML = "downloads_html"
 DOWNLOAD_PARQUET = "downloads_parquet"
 DOWNLOAD_MD = "downloads_md"
@@ -23,8 +24,11 @@ DOWNLOAD_MD = "downloads_md"
 COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 10
 DEPTH = 2
 NUM_DOWNLOADS = 1000
+
+# skip columns in the parquet file - these are not needed in the md file
 PQ_COLS_SKIP = ["document_id", "size"]
 
+# other file names
 MD_OUTPUT_FILE_BASE = "source_"
 URL_SNAPHOT_JSON = "url_snapshot.json"
 
@@ -38,7 +42,7 @@ def get_dict_source_files(source_file_as_txt):
         source_file_as_txt (str): The name of the text file containing the URLs.
 
     Returns:
-        dict: A dictionary where each URL is a key, and the value is False.
+        dict: A dictionary where each URL is a key, and the value is False to indicate it has not been processed.
     """
     url_dict = {}
 
@@ -70,10 +74,11 @@ def get_dict_source_files(source_file_as_txt):
     return url_dict
 
 
+
+
 def convert_urls_to_md(url_dict):
     """
-    Converts a list of URLs to markdown files.  This is a placeholder function
-    and should be replaced with the actual implementation.
+    Converts a dict of URLs to markdown files.  
 
     Args:
         url_dict (url_dict): A list of URLs to be converted. url and true/false flag if processed
@@ -198,10 +203,9 @@ def convert_urls_to_md(url_dict):
         # This acts as a separator similar to PageBreak in PDF
         current_md_content += "---\n\n"
 
-    # --- 4 Save the MD file  ---
+    # --- 4 Save the MD file if there is any data ---
     if (len(file_sources) > 0):
         output_filename = MD_OUTPUT_FILE_BASE+time.strftime("%Y%m%d-%H%M%S")+".md"
-
 
 
         logger.info(f"MD Output filename: {output_filename}")
@@ -235,7 +239,7 @@ def convert_urls_to_md(url_dict):
 
 if __name__ == "__main__":
     """
-    Main function to get the filename from the user and call the
+    Main function to get the list of sources  and call the
     iterate_urls_from_file function.
     """
     # setup logging
@@ -248,7 +252,7 @@ if __name__ == "__main__":
     nest_asyncio.apply()
     pd.set_option("display.max_colwidth", 10000)
 
-    # load sources
+    # load url - Snapshot file if it exists, sources.txt if not
     if os.path.exists(URL_SNAPHOT_JSON):
         with open(URL_SNAPHOT_JSON, 'r') as f:
             url_dict = json.load(f)  # Load the entire JSON content
@@ -257,11 +261,11 @@ if __name__ == "__main__":
                 logger.info(
                     f"Warning: File '{master_source_file}' did not contain a list. defaulting to {master_source_file}.")
                 url_dict = get_dict_source_files(master_source_file)
-
     else:
         logger.info(
             f"Info: File '{master_source_file}' not found. defaulting to {master_source_file}.")
         url_dict = get_dict_source_files(master_source_file)
+
 
     if (len(url_dict) == 0):
         logger.info(f"Error: No URLs found in the file. Exiting.")
@@ -274,15 +278,13 @@ if __name__ == "__main__":
         logger.info(f"Processing chunk remaining urls amount {len(url_dict)} ")
         url_dict = convert_urls_to_md(url_dict)
 
-        # --- 5 snapshot the counter if we have to run again  ---
+        # --- snapshot the remaining urls   ---
         with open(URL_SNAPHOT_JSON, 'w') as filehandle:
             json.dump(url_dict, filehandle)
-            
-        
-        logger.info(f"remaining written to {URL_SNAPHOT_JSON}")
+            logger.info(f"remaining written to {URL_SNAPHOT_JSON}")
         
 
-        # break if set in config
+        # break if set in config to do single run
         if (SINGLE_RUN_NO_LOOP == True):
             logger.info(f"Info: Config set not to loop . Exiting.")
             break
