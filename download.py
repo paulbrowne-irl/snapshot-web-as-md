@@ -14,9 +14,9 @@ from dpk_html2parquet.transform_python import Html2Parquet
 
 
 # CONFIGURATION
-SINGLE_RUN_NO_LOOP = True  # Run once and exit, or loop over URLs
+SINGLE_RUN_NO_LOOP = False  # Run once and exit, or loop over URLs
 DEPTH = 2  # Depth of web crawling
-NUM_DOWNLOADS = 1000  # Maximum number of downloads per run
+NUM_DOWNLOADS = 90  # Maximum number of downloads per run
 
 # Folder paths for storing intermediate and final outputs
 DOWNLOAD_HTML = "downloads_html"
@@ -24,7 +24,7 @@ DOWNLOAD_PARQUET = "downloads_parquet"
 DOWNLOAD_MD = "downloads_md"
 
 # Markdown output settings
-COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 10  # Combine multiple websites into one Markdown file
+COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 3  # Combine multiple websites into one Markdown file
 MD_OUTPUT_FILE_BASE = "source_"
 
 # Parquet processing settings
@@ -145,95 +145,95 @@ def convert_urls_to_md(url_dict: dict) -> dict:
                 parquet_files.append(full_path)
                 logger.info(f"Found parquet file: {full_path}")
     except OSError as e:
-        logger.info(f"Error accessing directory: {e}", file=sys.stderr)
-        return
+        logger.error(f"Error accessing directory: {e}", file=sys.stderr)
+        
 
     if not parquet_files:
         logger.info("No .parquet files found in the directory.")
-        return
-
-    parquet_files.sort()
-    logger.info(f"Found {len(parquet_files)} parquet files. Processing...")
-
-    # --- 3. Process Files and Generate Markdown Files ---
-    file_sources = set()
-    current_md_content = ""  # Accumulate markdown content as a string
-
-    # do the loop
-    for file_path in parquet_files:  # was enumerate(parquet_files)
-        logging.info(f"Processing file: {file_path}")
-        filename = os.path.basename(file_path)
-
-        # --- Read Parquet File ---
-        logger.info(f"  Reading: {filename}...")
-
-        # add first 8 letters to generate unque filename
-        file_sources.add(filename[0:8])
-
-        try:
-            df = pd.read_parquet(file_path)
-            # Add filename using Markdown H2
-            current_md_content += f"## Data from Website: http://www.{filename[0:-8]}\n\n"
-
-            # --- Convert DataFrame to Markdown Text ---
-            if df.empty:
-                current_md_content += "_(File contains no data)_\n\n"
-            else:
-                for col_name in df.columns:
-
-                    if col_name in PQ_COLS_SKIP:
-                        logging.debug(
-                            f"  Skipping column '{col_name}' in file '{filename}'")
-
-                    else:
-                        # Add column name using Markdown H3
-                        current_md_content += f"### {col_name}\n"
-
-                        # Add column contents in a text code block
-                        col_content_str = df[col_name].to_string(index=False)
-
-                        current_md_content += f"```text\n{col_content_str}\n```\n\n"
-
-        except Exception as e:
-            logger.info(
-                f"  Error reading or processing parquet file '{filename}': {e}", file=sys.stderr)
-            # Add error message to markdown
-            current_md_content += f"**Error processing {filename}:**\n```\n{e}\n```\n\n"
-
-        # --- Add Horizontal Rule after each file's content ---
-        # This acts as a separator similar to PageBreak in PDF
-        current_md_content += "---\n\n"
-
-    # --- 4 Save the MD file if there is any data ---
-    if (len(file_sources) > 0):
-        output_filename = MD_OUTPUT_FILE_BASE+time.strftime("%Y%m%d-%H%M%S")+".md"
-
-
-        logger.info(f"MD Output filename: {output_filename}")
-
-        output_md_path = os.path.join(DOWNLOAD_MD, output_filename)
-
-        if current_md_content and output_md_path:
-            # Remove trailing horizontal rule if it exists before saving
-            if current_md_content.endswith("\n---\n\n"):
-                # Remove last rule and newlines
-                current_md_content = current_md_content[:-5]
-            try:
-                logger.info(f"Saving final Markdown: {output_md_path}...")
-                with open(output_md_path, 'w', encoding='utf-8') as f:
-                    f.write(current_md_content)
-                logger.info(f"Successfully created: {output_md_path}")
-            except IOError as e:
-                logger.error(
-                    f"Error writing final Markdown file '{output_md_path}': {e}", file=sys.stderr)
-            except Exception as e:
-                logger.error(
-                    f"An unexpected error occurred while writing  file '{output_md_path}': {e}", file=sys.stderr)
     else:
-        logger.error(
-            f"Error: No valid sources found for file creation. Skipping file creation.")
 
-    logger.info("\n Chunk Processing complete.")
+        parquet_files.sort()
+        logger.info(f"Found {len(parquet_files)} parquet files. Processing...")
+
+        # --- 3. Process Files and Generate Markdown Files ---
+        file_sources = set()
+        current_md_content = ""  # Accumulate markdown content as a string
+
+        # do the loop
+        for file_path in parquet_files:  # was enumerate(parquet_files)
+            logging.info(f"Processing file: {file_path}")
+            filename = os.path.basename(file_path)
+
+            # --- Read Parquet File ---
+            logger.info(f"  Reading: {filename}...")
+
+            # add first 8 letters to generate unique filename
+            file_sources.add(filename[0:8])
+
+            try:
+                df = pd.read_parquet(file_path)
+                # Add filename using Markdown H2
+                current_md_content += f"## Data from Website: http://www.{filename[0:-8]}\n\n"
+
+                # --- Convert DataFrame to Markdown Text ---
+                if df.empty:
+                    current_md_content += "_(File contains no data)_\n\n"
+                else:
+                    for col_name in df.columns:
+
+                        if col_name in PQ_COLS_SKIP:
+                            logging.debug(
+                                f"  Skipping column '{col_name}' in file '{filename}'")
+
+                        else:
+                            # Add column name using Markdown H3
+                            current_md_content += f"### {col_name}\n"
+
+                            # Add column contents in a text code block
+                            col_content_str = df[col_name].to_string(index=False)
+
+                            current_md_content += f"```text\n{col_content_str}\n```\n\n"
+
+            except Exception as e:
+                logger.info(
+                    f"  Error reading or processing parquet file '{filename}': {e}", file=sys.stderr)
+                # Add error message to markdown
+                current_md_content += f"**Error processing {filename}:**\n```\n{e}\n```\n\n"
+
+            # --- Add Horizontal Rule after each file's content ---
+            # This acts as a separator similar to PageBreak in PDF
+            current_md_content += "---\n\n"
+
+        # --- 4 Save the MD file if there is any data ---
+        if (len(file_sources) > 0):
+            output_filename = MD_OUTPUT_FILE_BASE+time.strftime("%Y%m%d-%H%M%S")+".md"
+
+
+            logger.info(f"MD Output filename: {output_filename}")
+
+            output_md_path = os.path.join(DOWNLOAD_MD, output_filename)
+
+            if current_md_content and output_md_path:
+                # Remove trailing horizontal rule if it exists before saving
+                if current_md_content.endswith("\n---\n\n"):
+                    # Remove last rule and newlines
+                    current_md_content = current_md_content[:-5]
+                try:
+                    logger.info(f"Saving final Markdown: {output_md_path}...")
+                    with open(output_md_path, 'w', encoding='utf-8') as f:
+                        f.write(current_md_content)
+                    logger.info(f"Successfully created: {output_md_path}")
+                except IOError as e:
+                    logger.error(
+                        f"Error writing final Markdown file '{output_md_path}': {e}", file=sys.stderr)
+                except Exception as e:
+                    logger.error(
+                        f"An unexpected error occurred while writing  file '{output_md_path}': {e}", file=sys.stderr)
+        else:
+            logger.error(
+                f"Error: No valid sources found for file creation. Skipping file creation.")
+
+        logger.info("\n Chunk Processing complete.")
 
     return url_dict
 
@@ -280,10 +280,13 @@ if __name__ == "__main__":
         url_dict = convert_urls_to_md(url_dict)
 
         # --- snapshot the remaining urls   ---
-        with open(URL_SNAPSHOT_JSON, 'w') as filehandle:
-            json.dump(url_dict, filehandle)
-            logger.info(f"remaining written to {URL_SNAPSHOT_JSON}")
-        
+        if url_dict is not None:
+            with open(URL_SNAPSHOT_JSON, 'w') as filehandle:
+                json.dump(url_dict, filehandle)
+                logger.info(f"remaining written to {URL_SNAPSHOT_JSON}")
+        else:
+            logger.error(f"WARNING! No URLs to write to snapshot file. EXITING.")  
+            sys.exit(1)
 
         # break if set in config to do single run
         if (SINGLE_RUN_NO_LOOP == True):

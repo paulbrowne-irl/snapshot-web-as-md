@@ -2,14 +2,7 @@
 
 # NOW
 
-* upgrade Readme
-    * tidy manual
-    * instructions on how to use with notebooklm (inc snapshot of sources)
-
- ask for suggestions from AI 
-    * on readme
-    * on download.py
 
 # LATER
-
+* Test again with 0 files / last couple of files
 * Ask copilot to generate script to combine md files up to maximum file size
