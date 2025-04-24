@@ -13,10 +13,11 @@ from dpk_web2parquet.transform import Web2Parquet
 from dpk_html2parquet.transform_python import Html2Parquet
 
 
-# CONFIGURATION
-SINGLE_RUN_NO_LOOP = False  # Run once and exit, or loop over URLs
+# KEY CONFIGURATION
+SINGLE_RUN_NO_LOOP = True  # Run once and exit, or loop over URLs
 DEPTH = 2  # Depth of web crawling
-NUM_DOWNLOADS = 90  # Maximum number of downloads per run
+NUM_DOWNLOADS = 300  # Maximum number of downloads per run
+COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 10  # Combine multiple websites into one Markdown file
 
 # Folder paths for storing intermediate and final outputs
 DOWNLOAD_HTML = "downloads_html"
@@ -24,7 +25,6 @@ DOWNLOAD_PARQUET = "downloads_parquet"
 DOWNLOAD_MD = "downloads_md"
 
 # Markdown output settings
-COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 3  # Combine multiple websites into one Markdown file
 MD_OUTPUT_FILE_BASE = "source_"
 
 # Parquet processing settings
