@@ -71,7 +71,9 @@ Since the crawler respects robots.txt, it may pause for several seconds between 
 
 In general it is safe to terminate the script, manipulate the `url_snapshot.json` file and try again.
 
-The flag `SINGLE_RUN_NO_LOOP` in `download.py` in the script sets the script to run once (one block of urls), or multiple times until all urls have been captured. This allows for a workaround (possible memory leak in the DPK / Scrapy crawler used). A simple convenience script `download.sh` supports this i.e. Python is allowed to exit, memory freed up, then script called again for the next run.
+The flag `SINGLE_RUN_NO_LOOP` in `download.py` in the script sets the script to run once (one block of urls), or multiple times until all urls have been captured. This allows for a workaround (possible memory leak in the DPK / Scrapy crawler used). A simple convenience script `read-download.sh` supports this i.e. Python is allowed to exit, memory freed up, then script called again for the next run.
+
+The script (and Python program) are almost thread-safe - it is ok to have multiple terminal windows open and run them concurrently. The various scripts will read / write their status to the Snapshot file in a way that singals their progress (i.e. will take the next block of urls not already started, will add their url status update based on the latest version of the file.)
 
 
 

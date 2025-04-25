@@ -16,8 +16,8 @@ from dpk_html2parquet.transform_python import Html2Parquet
 # KEY CONFIGURATION
 SINGLE_RUN_NO_LOOP = True  # Run once and exit, or loop over URLs
 DEPTH = 2  # Depth of web crawling
-NUM_DOWNLOADS = 20  # Maximum number of downloads per run
-COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 1  # Combine multiple websites into one Markdown file
+NUM_DOWNLOADS = 200  # Maximum number of downloads per run
+COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 10  # Combine multiple websites into one Markdown file
 
 # original sources
 ORIGINAL_SOURCE_FILE = "sources.txt"
@@ -39,7 +39,7 @@ URL_SNAPSHOT_JSON = "url_snapshot.json"
 # JSON STATUS_FILES
 JSON_NOT_STARTED = "not started"
 JSON_IN_PROGRESS = "in progress"
-JSON_COMPLETED = "completed"
+JSON_COMPLETE = "complete"
 
 def read_full_dict_source_file(original_text_file:str, json_source_file: str) -> dict:
     """
@@ -101,23 +101,32 @@ def read_full_dict_source_file(original_text_file:str, json_source_file: str) ->
 
     return url_dict
 
-def write_full_dict_source_file(url_dict: dict) -> dict:
+def update_json_snapshot_file(url_dict: dict=None, completed_keys:list=None):
     """
     Writes a dictionary of URLs to a text file, iterating through each URL
     and logging them to the console. Handles file not found errors.
 
     Args:
-        url_dict (dict): A dictionary where each URL is a key, and a value is False to indicate it's procession status
+        url_dict (dict): A dictionary where each URL is a key, and a value is False to indicate it's procession status (optional)
+        completed_keys (list): A list of keys that have been processed (optional)
 
     """
-    if url_dict is not None:    
-        with open(URL_SNAPSHOT_JSON, 'w') as filehandle:
-                json.dump(url_dict, filehandle)
-                logger.info(f"remaining written to {URL_SNAPSHOT_JSON}")
-    else:
-        logger.error(f"WARNING! No URLs to write to snapshot file. EXITING.")  
-        sys.exit(1)
-   
+    if url_dict is None:
+        ## read from the original source file    
+        loggger.info(f"Reading current snapshot from json.")  
+        url_dict= read_full_dict_source_file(ORIGINAL_SOURCE_FILE,URL_SNAPSHOT_JSON)  
+
+    if completed_keys is not None:
+        #update the url status with the "next_urls" that were processed
+        logger.info(f"Updating completed keys in file")  
+        
+        for key in completed_keys:
+            # Mark the URL as processed
+            url_dict[key] = JSON_COMPLETE
+
+    with open(URL_SNAPSHOT_JSON, 'w') as filehandle:
+            json.dump(url_dict, filehandle)
+            logger.info(f"updated status to {URL_SNAPSHOT_JSON}")
 
 
 def convert_urls_to_md(url_dict: dict) -> dict:
@@ -158,7 +167,7 @@ def convert_urls_to_md(url_dict: dict) -> dict:
             break
 
     # Snapshot the current status
-    write_full_dict_source_file(url_dict)
+    update_json_snapshot_file(url_dict,None)
 
     # download these files
     logger.info(f"Starting Conversion of Web to Parquet")
@@ -279,13 +288,7 @@ def convert_urls_to_md(url_dict: dict) -> dict:
                 f"Error: No valid sources found for file creation. Skipping file creation.")
 
 
-    #update the url status with the "next_urls" that were processed
-    for key in next_urls:
-   
-        # Mark the URL as processed
-        url_dict[key] = JSON_COMPLETED
-
-    write_full_dict_source_file(url_dict)
+    update_json_snapshot_file(url_dict,next_urls)
     logger.info("\n Chunk Processing complete, status updated in json file.\n\n\n\n")
 
 
@@ -306,23 +309,21 @@ if __name__ == "__main__":
     nest_asyncio.apply()
     pd.set_option("display.max_colwidth", 10000)
 
-    # load url - Snapshot file if it exists, sources.txt if not
-    url_dict = read_full_dict_source_file(ORIGINAL_SOURCE_FILE,URL_SNAPSHOT_JSON)
 
-
-    if (len(url_dict) == 0):
-        logger.info(f"Error: No URLs found in the file. Exiting.")
-        sys.exit(1)
 
     # loop over the urls
-    while (len(url_dict) > 0):
+    while (True):
         # Process the URLs in chunks
+
+        # load url - Snapshot file if it exists, sources.txt if not
+        url_dict = read_full_dict_source_file(ORIGINAL_SOURCE_FILE,URL_SNAPSHOT_JSON)
+
+        if (len(url_dict) == 0):
+            logger.info(f"Error: No URLs found in the file. Exiting.")
+            sys.exit(1)
 
         logger.info(f"Processing urls - full list size {len(url_dict)} ")
         url_dict = convert_urls_to_md(url_dict)
-
-        # snapshot current status
-        write_full_dict_source_file(url_dict)
 
 
         # break if set in config to do single run
