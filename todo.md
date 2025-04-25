@@ -1,6 +1,14 @@
 # Todo on this sample
 
-# NOW
+# NOW MULTITHREAD
+* better signal file - inital two flags
+* test refactor
+* push to file sooner (sep thread)
+* test two different windows
+* made note of can be run in separate windows (update readme.me)
+
+* start combo and upload
+
 
 
 # LATER
