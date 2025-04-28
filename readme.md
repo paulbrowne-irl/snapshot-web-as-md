@@ -75,6 +75,7 @@ The flag `SINGLE_RUN_NO_LOOP` in `download.py` in the script sets the script to 
 
 The script (and Python program) are almost thread-safe - it is ok to have multiple terminal windows open and run them concurrently. The various scripts will read / write their status to the Snapshot file in a way that singals their progress (i.e. will take the next block of urls not already started, will add their url status update based on the latest version of the file.)
 
+To enable this - the script takes an (optional) Parameter of the sources e.g. sources1.txt, sources2.txt etc . This gives an even more robust paralell option, since ti will snaphot progress as sources1_url_snapshot.json etc, meaning there is no risk of it getting overwritten
 
 
 

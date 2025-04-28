@@ -14,7 +14,7 @@ from dpk_html2parquet.transform_python import Html2Parquet
 
 
 # KEY CONFIGURATION
-SINGLE_RUN_NO_LOOP = True  # Run once and exit, or loop over URLs
+SINGLE_RUN_NO_LOOP = False  # Run once and exit, or loop over URLs
 DEPTH = 2  # Depth of web crawling
 NUM_DOWNLOADS = 200  # Maximum number of downloads per run
 COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 10  # Combine multiple websites into one Markdown file
@@ -101,7 +101,7 @@ def read_full_dict_source_file(original_text_file:str, json_source_file: str) ->
 
     return url_dict
 
-def update_json_snapshot_file(url_dict: dict=None, completed_keys:list=None):
+def update_json_snapshot_file(json_snapshot_file: str, url_dict: dict=None, completed_keys:list=None):
     """
     Writes a dictionary of URLs to a text file, iterating through each URL
     and logging them to the console. Handles file not found errors.
@@ -114,7 +114,7 @@ def update_json_snapshot_file(url_dict: dict=None, completed_keys:list=None):
     if url_dict is None:
         ## read from the original source file    
         loggger.info(f"Reading current snapshot from json.")  
-        url_dict= read_full_dict_source_file(ORIGINAL_SOURCE_FILE,URL_SNAPSHOT_JSON)  
+        url_dict= read_full_dict_source_file(None,json_snapshot_file)  
 
     if completed_keys is not None:
         #update the url status with the "next_urls" that were processed
@@ -124,12 +124,12 @@ def update_json_snapshot_file(url_dict: dict=None, completed_keys:list=None):
             # Mark the URL as processed
             url_dict[key] = JSON_COMPLETE
 
-    with open(URL_SNAPSHOT_JSON, 'w') as filehandle:
+    with open(json_snapshot_file, 'w') as filehandle:
             json.dump(url_dict, filehandle)
-            logger.info(f"updated status to {URL_SNAPSHOT_JSON}")
+            logger.info(f"updated status to {json_snapshot_file}")
 
 
-def convert_urls_to_md(url_dict: dict) -> dict:
+def convert_urls_to_md(json_snapshot_file:str,url_dict: dict) -> dict:
     """
     Converts a dict of URLs to markdown files.  
 
@@ -167,7 +167,7 @@ def convert_urls_to_md(url_dict: dict) -> dict:
             break
 
     # Snapshot the current status
-    update_json_snapshot_file(url_dict,None)
+    update_json_snapshot_file(json_snapshot_file,url_dict,None)
 
     # download these files
     logger.info(f"Starting Conversion of Web to Parquet")
@@ -288,7 +288,7 @@ def convert_urls_to_md(url_dict: dict) -> dict:
                 f"Error: No valid sources found for file creation. Skipping file creation.")
 
 
-    update_json_snapshot_file(url_dict,next_urls)
+    update_json_snapshot_file(json_snapshot_file,url_dict,next_urls)
     logger.info("\n Chunk Processing complete, status updated in json file.\n\n\n\n")
 
 
@@ -309,6 +309,23 @@ if __name__ == "__main__":
     nest_asyncio.apply()
     pd.set_option("display.max_colwidth", 10000)
 
+    # Check if any command-line arguments were provided (besides the script name itself).
+    if len(sys.argv) > 1:
+        # The first argument (index 1) is the value we want.
+        argument_value = sys.argv[1]
+
+        ORIGINAL_SOURCE_FILE = argument_value
+        logger.info(f"Setting URL source to {ORIGINAL_SOURCE_FILE}")
+
+        URL_SNAPSHOT_JSON = argument_value[:-4]+"_"+URL_SNAPSHOT_JSON
+        logger.info(f"Setting Snapshot to {URL_SNAPSHOT_JSON}")
+
+
+                    
+    else:
+        # If no argument was provided, print a usage message.
+         logger.info(f"Defaulting URL source to {ORIGINAL_SOURCE_FILE}")
+         logger.info(f"Defaulting Snapshot to {URL_SNAPSHOT_JSON}")
 
 
     # loop over the urls
@@ -323,7 +340,7 @@ if __name__ == "__main__":
             sys.exit(1)
 
         logger.info(f"Processing urls - full list size {len(url_dict)} ")
-        url_dict = convert_urls_to_md(url_dict)
+        url_dict = convert_urls_to_md(URL_SNAPSHOT_JSON,url_dict)
 
 
         # break if set in config to do single run
