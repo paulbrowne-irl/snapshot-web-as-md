@@ -14,7 +14,7 @@ from dpk_html2parquet.transform_python import Html2Parquet
 
 
 # KEY CONFIGURATION
-SINGLE_RUN_NO_LOOP = False  # Run once and exit, or loop over URLs
+SINGLE_RUN_NO_LOOP = True  # Run once and exit, or loop over URLs
 DEPTH = 2  # Depth of web crawling
 NUM_DOWNLOADS = 200  # Maximum number of downloads per run
 COMBINE_X_WEBSITES_INTO_ONE_MD_FILE = 10  # Combine multiple websites into one Markdown file
