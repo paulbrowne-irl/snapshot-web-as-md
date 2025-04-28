@@ -48,6 +48,13 @@ The following folders will be created / cleared as needed:
 
    Deleting the `url_snapshot.json` file will reset the list and `sources.txt` will be read again
 
+   Noting it is possible to provide a different source file name e.g. 
+   ```bash
+   python3 download.py different_source.txt
+   ```
+   In this case, the json snapthot will be different_source_url_snapshot.json. This supports running the script in paralell, with different sources (as web crawling and spidering can take a significant amount of time)
+
+
 3. The script will:
    - Download the content of the URLs/ websites (including following internal links to a depth specified in the config).
    - Convert the content to Parquet format.
