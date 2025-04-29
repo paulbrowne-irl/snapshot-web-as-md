@@ -28,7 +28,7 @@ The following folders will be created / cleared as needed:
 
 - `downloads_html`: Directory for storing downloaded HTML files.
 - `downloads_parquet`: Directory for storing Parquet files converted from HTML.
-- `downloads_md`: Directory for storing the final Markdown files. *will not be deleted*
+- `downloads_md`: Directory for storing the final Markdown files. *will not be deleted only created*
 
 
 ## Usage
@@ -64,6 +64,22 @@ The following folders will be created / cleared as needed:
    The md files generated can be directly imported into Notebook LM.
    It is good practice to include the url_snapshot.json (rename to .txt) so you know what information Google Gemini is using.
    MD files can be manipulated before upload as required (e.g. edited, combined).
+
+## Usage - Multiple download script
+A shell script is provided for convenience. It avoids any possibility of a memory leak, and works best when ```NO_LOOP``` in ```download.py``` is set to ```true```.
+
+This script.
+1. Sets the Python virtual environment if not already setup
+1. takes the source file
+1. loops for x time, calling the Python ```download.py``` as a new process each time.
+
+```bash
+   ./repeat_download.sh <url_source_file> <loop_count> 
+```
+For example
+```bash
+   ./repeat_download.sh sources_1.txt 10 
+```
 
 ## Robust restart functionality and troubleshooting
 

@@ -1,11 +1,12 @@
 import os
 import sys
+import shutil
 
 # --- Configuration Constants ---
 # Define your input and output parameters here
-INPUT_DIR = "path/to/your/input/markdown/files"  # <<< SET YOUR INPUT DIRECTORY HERE
-OUTPUT_DIR = "path/to/your/output/directory"   # <<< SET YOUR OUTPUT DIRECTORY HERE (or None to use INPUT_DIR)
-MAX_SIZE_MB = 5.0  # Maximum size for each combined file in Megabytes (MB)
+INPUT_DIR = "downloads_md"  # <<< SET YOUR INPUT DIRECTORY HERE
+OUTPUT_DIR = "downloads_md_combine"   # <<< SET YOUR OUTPUT DIRECTORY HERE (or None to use INPUT_DIR)
+MAX_SIZE_MB = 30.0  # Maximum size for each combined file in Megabytes (MB)
 OUTPUT_PREFIX = "combined_output" # Prefix for the generated output filenames
 SEPARATOR = "\n\n---\n\n" # Separator string between combined files
 
@@ -15,54 +16,28 @@ def combine_md_files():
     in the OUTPUT_DIR, each not exceeding MAX_SIZE_MB. Uses constants
     defined at the top of the script for configuration.
     """
-    # Use the global constants defined at the top
-    input_dir = INPUT_DIR
-    output_dir = OUTPUT_DIR
-    max_size_mb = MAX_SIZE_MB
-    output_prefix = OUTPUT_PREFIX
-    separator = SEPARATOR
-
-    # --- Input Validation and Setup ---
-    if not input_dir or input_dir == "path/to/your/input/markdown/files":
-         print("Error: Please set the INPUT_DIR constant at the top of the script.")
-         sys.exit(1)
-
-    if not os.path.isdir(input_dir):
-        print(f"Error: Input directory '{input_dir}' not found or is not a directory.")
-        sys.exit(1) # Exit if input directory is invalid
-
-    if not output_dir or output_dir == "path/to/your/output/directory":
-        print("Info: OUTPUT_DIR not set or is default. Using INPUT_DIR as the output directory.")
-        output_dir = input_dir # Default output to input directory if not specified or default
-
-    # Create output directory if it doesn't exist
-    try:
-        os.makedirs(output_dir, exist_ok=True)
-    except OSError as e:
-        print(f"Error creating output directory '{output_dir}': {e}")
-        sys.exit(1)
 
     # Convert max size from MB to bytes
-    max_size_bytes = max_size_mb * 1024 * 1024
-    separator_bytes = len(separator.encode('utf-8'))
+    max_size_bytes = MAX_SIZE_MB * 1024 * 1024
+    separator_bytes = len(SEPARATOR.encode('utf-8'))
 
     # --- Find and Sort Markdown Files ---
     try:
-        all_files = [f for f in os.listdir(input_dir) if
-                     os.path.isfile(os.path.join(input_dir, f)) and f.lower().endswith('.md')]
+        all_files = [f for f in os.listdir(INPUT_DIR) if
+                     os.path.isfile(os.path.join(INPUT_DIR, f)) and f.lower().endswith('.md')]
         all_files.sort() # Sort files alphabetically for consistent order
     except OSError as e:
-        print(f"Error reading input directory '{input_dir}': {e}")
+        print(f"Error reading input directory '{INPUT_DIR}': {e}")
         sys.exit(1)
 
     if not all_files:
-        print(f"No .md files found in '{input_dir}'.")
+        print(f"No .md files found in '{INPUT_DIR}'.")
         return # Exit gracefully if no markdown files are found
 
-    print(f"Found {len(all_files)} .md files in '{input_dir}'.")
-    print(f"Output directory: '{output_dir}'")
-    print(f"Max file size: {max_size_mb} MB")
-    print(f"Output prefix: '{output_prefix}'")
+    print(f"Found {len(all_files)} .md files in '{INPUT_DIR}'.")
+    print(f"Output directory: '{OUTPUT_DIR}'")
+    print(f"Max file size: {MAX_SIZE_MB} MB")
+    print(f"Output prefix: '{OUTPUT_PREFIX}'")
 
     # --- File Combination Logic ---
     output_file_index = 1
@@ -76,8 +51,8 @@ def combine_md_files():
         if not current_output_content:
             return # Do nothing if there's no content to write
 
-        output_filename = f"{output_prefix}_{output_file_index}.md"
-        output_filepath = os.path.join(output_dir, output_filename)
+        output_filename = f"{OUTPUT_PREFIX}_{output_file_index}.md"
+        output_filepath = os.path.join(OUTPUT_DIR, output_filename)
         try:
             with open(output_filepath, 'w', encoding='utf-8') as outfile:
                 outfile.write(current_output_content)
@@ -97,7 +72,7 @@ def combine_md_files():
 
     # --- Iterate and Combine ---
     for filename in all_files:
-        input_filepath = os.path.join(input_dir, filename)
+        input_filepath = os.path.join(INPUT_DIR, filename)
         try:
             with open(input_filepath, 'r', encoding='utf-8') as infile:
                 content_to_add = infile.read()
@@ -111,7 +86,7 @@ def combine_md_files():
             # --- Size Check ---
             # Special case: If a single file is larger than max_size_bytes
             if file_size > max_size_bytes and current_output_size == 0:
-                 print(f"Warning: File '{filename}' ({file_size / (1024*1024):.2f} MB) is larger than the max size ({max_size_mb} MB). It will be placed in its own output file.")
+                 print(f"Warning: File '{filename}' ({file_size / (1024*1024):.2f} MB) is larger than the max size ({MAX_SIZE_MB} MB). It will be placed in its own output file.")
                  current_output_content = content_to_add
                  current_output_size = file_size
                  files_in_current_output.append(filename)
@@ -125,7 +100,7 @@ def combine_md_files():
             # --- Append Content ---
             # Add separator if appending to existing content
             if current_output_size > 0:
-                current_output_content += separator
+                current_output_content += SEPARATOR
                 current_output_size += separator_bytes
 
             current_output_content += content_to_add
@@ -150,4 +125,9 @@ def combine_md_files():
 
 # --- Run the main function ---
 if __name__ == "__main__":
+
+    # Clear update teh output dir
+    shutil.rmtree(OUTPUT_DIR, ignore_errors=True)
+    shutil.os.makedirs(OUTPUT_DIR, exist_ok=True)
+
     combine_md_files()

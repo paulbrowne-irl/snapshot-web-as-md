@@ -76,8 +76,7 @@ do
    echo "--- Iteration $i of $LOOP_COUNT ---"
    # Execute the Python script using the python3 interpreter
    python3 download.py "$SOURCE_FILE_NAME"
-   # Optional: Add a small delay between executions if needed
-   # sleep 1
+
 done
 
 echo "--- Loop finished ---"
